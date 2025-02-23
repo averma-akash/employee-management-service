@@ -1,192 +1,144 @@
-╔═════════════╗
-║ Scenario :  ║
-╚═════════════╝
-A growing IT company wants to replace its outdated Excel-based employee record-keeping system with a centralized web-based Employee Management System. The system should allow HR, Managers, and Employees to interact securely, ensuring data integrity and access control. The company wants a scalable solution that integrates with Oracle for persistence and follows industry best practices.
+# Employee Management System 🚀
 
-📌 Use Cases & Features
-User Authentication & Role-Based Access Control (RBAC)
-Admin (HR Manager): Can manage all employees, assign roles, and perform CRUD operations.
-Manager: Can view and manage their team members.
-Employee: Can only view/update their own profile.
-🔹 Implementation Details:
-✅ Use Spring Security + JWT for authentication
-✅ Implement role-based access control (RBAC)
+## 📌 Project Overview
+The **Employee Management System** is a Spring Boot-based web application designed to manage employee records efficiently. It supports **user authentication, role-based access control (RBAC), employee CRUD operations, and leave management** while integrating with an **Oracle database**.
 
-Employee Management (CRUD Operations)
-✅ Create Employee – HR/Admin can add new employees with details like name, department, salary, and role.
-✅ Read Employee – Employees can view their profiles, managers can view their team, and HR/Admin can access all records.
-✅ Update Employee – Employees can update personal details, managers can update team members, and HR/Admin can modify all records.
-✅ Delete Employee – Only Admin can remove employees.
+## 🔥 Features
+✅ **User Authentication & Role-Based Access Control** (Admin, Manager, Employee)  
+✅ **Employee Management (CRUD Operations)**  
+✅ **Department & Role Management**  
+✅ **Leave Request & Approval Workflow**  
+✅ **Exception Handling & Logging** (SLF4J + Logback)  
+✅ **Unit & Integration Testing** (JUnit, Mockito, MockMvc)  
 
-🔹 Implementation Details:
-✅ Use Spring Boot REST APIs for CRUD operations
-✅ Integrate Oracle database with JPA/Hibernate
-✅ Validate inputs using Spring Boot validation
+## 🏗️ Tech Stack
+- **Backend:** Java 17, Spring Boot 3, Spring Security, JWT, Hibernate  
+- **Database:** Oracle (JPA + Hibernate)  
+- **Testing:** JUnit, Mockito  
+- **Build Tool:** Maven  
+- **Containerization:** Docker (Optional)  
 
-Search & Filtering
-✅ Search employees by name, department, role, or ID
-✅ Filter employees based on salary range, join date, and active status
-✅ Paginate results for large datasets
+## 📜 Database Schema
 
-🔹 Implementation Details:
-✅ Use Spring Data JPA with custom queries
-✅ Implement pagination & sorting
+### 📌 **Employee Table**
+| Column Name   | Data Type      | Constraints |
+|--------------|--------------|-------------|
+| `id`         | NUMBER(10)    | PRIMARY KEY, AUTO_INCREMENT |
+| `first_name` | VARCHAR2(100) | NOT NULL |
+| `last_name`  | VARCHAR2(100) | NOT NULL |
+| `email`      | VARCHAR2(150) | UNIQUE, NOT NULL |
+| `phone_number` | VARCHAR2(15) | UNIQUE, NOT NULL |
+| `salary`     | NUMBER(10,2)  | CHECK (salary >= 0) |
+| `hire_date`  | DATE          | NOT NULL |
+| `department_id` | NUMBER(10) | FOREIGN KEY (departments.id) |
+| `manager_id` | NUMBER(10) | FOREIGN KEY (employees.id) |
+| `role_id` | NUMBER(10) | FOREIGN KEY (roles.id) |
+| `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
 
-Department Management
-✅ Maintain a list of departments (e.g., HR, IT, Sales, Finance)
-✅ Assign employees to departments
-✅ Track headcount and average salary per department
+### 📌 **Departments Table**
+| Column Name   | Data Type      | Constraints |
+|--------------|--------------|-------------|
+| `id`         | NUMBER(10)    | PRIMARY KEY, AUTO_INCREMENT |
+| `name`       | VARCHAR2(100) | UNIQUE, NOT NULL |
+| `created_at` | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP |
 
-🔹 Implementation Details:
-✅ Create Department Entity and establish One-to-Many relationship with Employee
+### 📌 **Roles Table**
+| Column Name   | Data Type      | Constraints |
+|--------------|--------------|-------------|
+| `id`         | NUMBER(10)    | PRIMARY KEY, AUTO_INCREMENT |
+| `role_name`  | VARCHAR2(50)  | UNIQUE, NOT NULL |
+| `created_at` | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP |
 
-Attendance & Leave Management (Optional - Advanced Feature)
-✅ Employees can request leaves
-✅ Managers can approve/reject leave requests
-✅ Track leave balance & history
+📌 **Predefined Roles:**
+- **ADMIN**
+- **MANAGER**
+- **EMPLOYEE**
 
-🔹 Implementation Details:
-✅ Maintain Leave Request Entity
-✅ Implement Workflow for approvals
+### 📌 **Users Table (Login Credentials)**
+| Column Name   | Data Type      | Constraints |
+|--------------|--------------|-------------|
+| `id`         | NUMBER(10)    | PRIMARY KEY, AUTO_INCREMENT |
+| `employee_id` | NUMBER(10) | FOREIGN KEY (employees.id) |
+| `username`   | VARCHAR2(100) | UNIQUE, NOT NULL |
+| `password`   | VARCHAR2(255) | NOT NULL |
+| `role_id`    | NUMBER(10) | FOREIGN KEY (roles.id) |
+| `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
 
-Exception Handling & Logging
-✅ Handle invalid requests (e.g., deleting a non-existent employee)
-✅ Log API calls for monitoring & debugging
+### 📌 **Leave Requests Table**
+| Column Name   | Data Type      | Constraints |
+|--------------|--------------|-------------|
+| `id`         | NUMBER(10)    | PRIMARY KEY, AUTO_INCREMENT |
+| `employee_id` | NUMBER(10) | FOREIGN KEY (employees.id) |
+| `leave_type` | VARCHAR2(50) | CHECK (leave_type IN ('Sick Leave', 'Casual Leave', 'Paid Leave')) |
+| `start_date` | DATE          | NOT NULL |
+| `end_date`   | DATE          | NOT NULL |
+| `status`     | VARCHAR2(50)  | CHECK (status IN ('Pending', 'Approved', 'Rejected')) |
+| `created_at` | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP |
 
-🔹 Implementation Details:
-✅ Use @ControllerAdvice for global exception handling
-✅ Implement SLF4J + Logback for structured logging
+### 📌 **Audit Logs Table**
+| Column Name   | Data Type      | Constraints |
+|--------------|--------------|-------------|
+| `id`         | NUMBER(10)    | PRIMARY KEY, AUTO_INCREMENT |
+| `employee_id` | NUMBER(10) | FOREIGN KEY (employees.id) |
+| `action`     | VARCHAR2(255) | NOT NULL |
+| `timestamp`  | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP |
 
-Unit & Integration Testing
-✅ Write JUnit & Mockito tests for services and controllers
-✅ Validate API responses and business logic
+---
 
-🔹 Implementation Details:
-✅ Use MockMvc for testing REST APIs
-✅ Write repository tests using Oracle test containers
+## 🔄 API Endpoints
 
+### 📌 1️⃣ Authentication & Authorization APIs (Spring Security + JWT)
+| Method | Endpoint            | Description | Access Control |
+|--------|---------------------|-------------|---------------|
+| POST   | `/api/auth/register` | Register a new user | ADMIN |
+| POST   | `/api/auth/login` | Authenticate & generate JWT Token | PUBLIC |
+| POST   | `/api/auth/logout` | Invalidate JWT Token | LOGGED_IN_USERS |
 
-*** Database Details ***
+### 📌 2️⃣ Employee Management APIs
+| Method | Endpoint | Description | Access Control |
+|--------|---------|-------------|---------------|
+| POST   | `/api/employees` | Add a new employee | ADMIN |
+| GET    | `/api/employees` | Get all employees (Paginated) | ADMIN, MANAGER |
+| GET    | `/api/employees/{id}` | Get employee by ID | ADMIN, MANAGER, EMPLOYEE(SELF) |
+| PUT    | `/api/employees/{id}` | Update employee details | ADMIN, EMPLOYEE(SELF) |
+| DELETE | `/api/employees/{id}` | Delete an employee | ADMIN |
+| GET    | `/api/employees/search` | Search employees by name, department, etc. | ADMIN, MANAGER |
 
-📌 Table: employees (Employee Details)
+### 📌 3️⃣ Department Management APIs
+| Method | Endpoint | Description | Access Control |
+|--------|---------|-------------|---------------|
+| POST   | `/api/departments` | Create a new department | ADMIN |
+| GET    | `/api/departments` | Get all departments | ADMIN, MANAGER |
+| GET    | `/api/departments/{id}` | Get department by ID | ADMIN, MANAGER |
+| PUT    | `/api/departments/{id}` | Update department details | ADMIN |
+| DELETE | `/api/departments/{id}` | Delete department | ADMIN |
 
-Stores all employee-related information.
+### 📌 4️⃣ Role Management APIs
+| Method | Endpoint | Description | Access Control |
+|--------|---------|-------------|---------------|
+| GET    | `/api/roles` | Get all roles | ADMIN, MANAGER |
+| GET    | `/api/roles/{id}` | Get role by ID | ADMIN, MANAGER |
 
-╔═══════════════╦═══════════════╦════════════════════════════════════════════════════════════╗
-║ Column   Name ║  Data   Type  ║                         Constraints                        ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ id            ║ NUMBER(10)    ║ PRIMARY KEY, AUTO_INCREMENT                                ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ first_name    ║ VARCHAR2(100) ║ NOT NULL                                                   ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ last_name     ║ VARCHAR2(100) ║ NOT NULL                                                   ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ email         ║ VARCHAR2(150) ║ UNIQUE, NOT NULL                                           ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ phone_number  ║ VARCHAR2(15)  ║ UNIQUE, NOT NULL                                           ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ salary        ║ NUMBER(10,2)  ║ CHECK (salary >= 0)                                        ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ hire_date     ║ DATE          ║ NOT NULL                                                   ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ department_id ║ NUMBER(10)    ║ FOREIGN KEY (departments.id)                               ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ manager_id    ║ NUMBER(10)    ║ FOREIGN KEY (employees.id) (Self-Referencing for Managers) ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ role_id       ║ NUMBER(10)    ║ FOREIGN KEY (roles.id)                                     ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ created_at    ║ TIMESTAMP     ║ DEFAULT CURRENT_TIMESTAMP                                  ║
-╠═══════════════╬═══════════════╬════════════════════════════════════════════════════════════╣
-║ updated_at    ║ TIMESTAMP     ║ DEFAULT CURRENT_TIMESTAMP ON UPDATE                        ║
-╚═══════════════╩═══════════════╩════════════════════════════════════════════════════════════╝
+### 📌 5️⃣ Leave Management APIs
+| Method | Endpoint | Description | Access Control |
+|--------|---------|-------------|---------------|
+| POST   | `/api/leaves` | Request a leave | EMPLOYEE |
+| GET    | `/api/leaves` | Get all leave requests | ADMIN, MANAGER |
+| GET    | `/api/leaves/{id}` | Get leave request by ID | ADMIN, MANAGER, EMPLOYEE(SELF) |
+| PUT    | `/api/leaves/{id}/approve` | Approve leave request | MANAGER |
+| PUT    | `/api/leaves/{id}/reject` | Reject leave request | MANAGER |
 
-📌 Table: departments (Department Details)
+### 📌 6️⃣ Audit Log APIs
+| Method | Endpoint | Description | Access Control |
+|--------|---------|-------------|---------------|
+| GET    | `/api/logs` | Get all system logs | ADMIN |
+| GET    | `/api/logs/{id}` | Get log entry by ID | ADMIN |
 
-Stores department details.
+---
 
-╔═══════════════╦═══════════════╦═════════════════════════════╗
-║ Column   Name ║  Data   Type  ║         Constraints         ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ id            ║ NUMBER(10)    ║ PRIMARY KEY, AUTO_INCREMENT ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ name          ║ VARCHAR2(100) ║ UNIQUE, NOT NULL            ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ created_at    ║ TIMESTAMP     ║ DEFAULT CURRENT_TIMESTAMP   ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
+## 🛠️ Setup & Installation
 
-📌 Table: roles (User Roles - Admin, Manager, Employee)
-
-Defines roles for users.
-
-╔═══════════════╦══════════════╦═════════════════════════════╗
-║ Column   Name ║  Data   Type ║         Constraints         ║
-╠═══════════════╬══════════════╬═════════════════════════════╣
-║ id            ║ NUMBER(10)   ║ PRIMARY KEY, AUTO_INCREMENT ║
-╠═══════════════╬══════════════╬═════════════════════════════╣
-║ role_name     ║ VARCHAR2(50) ║ UNIQUE, NOT NULL            ║
-╠═══════════════╬══════════════╬═════════════════════════════╣
-║ created_at    ║ TIMESTAMP    ║ DEFAULT CURRENT_TIMESTAMP   ║
-╠═══════════════╬══════════════╬═════════════════════════════╣
-Predefined Values:
-
-1. ADMIN
-2. MANAGER
-3. EMPLOYEE
-
-📌 Table: users (Login Credentials)
-
-Stores authentication details for employees.
-
-╔═══════════════╦═══════════════╦═════════════════════════════╗
-║ Column   Name ║  Data   Type  ║         Constraints         ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ id            ║ NUMBER(10)    ║ PRIMARY KEY, AUTO_INCREMENT ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ employee_id   ║ NUMBER(10)    ║ FOREIGN KEY (employees.id)  ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ username      ║ VARCHAR2(100) ║ UNIQUE, NOT NULL            ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ password      ║ VARCHAR2(255) ║ NOT NULL                    ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ role_id       ║ NUMBER(10)    ║ FOREIGN KEY (roles.id)      ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ created_at    ║ TIMESTAMP     ║ DEFAULT CURRENT_TIMESTAMP   ║
-╚═══════════════╩═══════════════╩═════════════════════════════╝
-
-📌 TABLE: LEAVE_REQUESTS (EMPLOYEE LEAVE MANAGEMENT)
-
-Stores employee leave requests.
-
-╔═══════════════╦══════════════╦══════════════════════════════════════════════════════════════════════╗
-║ Column   Name ║  Data   Type ║                              Constraints                             ║
-╠═══════════════╬══════════════╬══════════════════════════════════════════════════════════════════════╣
-║ id            ║ NUMBER(10)   ║ PRIMARY KEY, AUTO_INCREMENT                                          ║
-╠═══════════════╬══════════════╬══════════════════════════════════════════════════════════════════════╣
-║ employee_id   ║ NUMBER(10)   ║ FOREIGN KEY (employees.id)                                           ║
-╠═══════════════╬══════════════╬══════════════════════════════════════════════════════════════════════╣
-║ leave_type    ║ VARCHAR2(50) ║ CHECK (leave_type IN ('Sick Leave', 'Casual Leave', 'Paid   Leave')) ║
-╠═══════════════╬══════════════╬══════════════════════════════════════════════════════════════════════╣
-║ start_date    ║ DATE         ║ NOT NULL                                                             ║
-╠═══════════════╬══════════════╬══════════════════════════════════════════════════════════════════════╣
-║ end_date      ║ DATE         ║ NOT NULL                                                             ║
-╠═══════════════╬══════════════╬══════════════════════════════════════════════════════════════════════╣
-║ status        ║ VARCHAR2(50) ║ CHECK (status IN ('Pending', 'Approved', 'Rejected'))                ║
-╠═══════════════╬══════════════╬══════════════════════════════════════════════════════════════════════╣
-║ created_at    ║ TIMESTAMP    ║ DEFAULT CURRENT_TIMESTAMP                                            ║
-╚═══════════════╩══════════════╩══════════════════════════════════════════════════════════════════════╝
-
-📌 Table: audit_logs (System Logs)
-
-Stores all system-level activities for auditing.
-
-╔═══════════════╦═══════════════╦═════════════════════════════╗
-║ Column   Name ║  Data   Type  ║         Constraints         ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ id            ║ NUMBER(10)    ║ PRIMARY KEY, AUTO_INCREMENT ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ employee_id   ║ NUMBER(10)    ║ FOREIGN KEY (employees.id)  ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ action        ║ VARCHAR2(255) ║ NOT NULL                    ║
-╠═══════════════╬═══════════════╬═════════════════════════════╣
-║ timestamp     ║ TIMESTAMP     ║ DEFAULT CURRENT_TIMESTAMP   ║
-╚═══════════════╩═══════════════╩═════════════════════════════╝
+### **1️⃣ Clone the Repository**
+```sh
+git clone https://github.com/averma-akash/employee-management-service.git
+cd employee-management-system
