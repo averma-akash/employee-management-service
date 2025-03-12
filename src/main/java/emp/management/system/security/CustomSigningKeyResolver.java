@@ -13,8 +13,9 @@ import io.jsonwebtoken.security.Keys;
 
 public class CustomSigningKeyResolver extends SigningKeyResolverAdapter {
 
-	@Value("${ems.app.jwtSecret}")
-	private String jwtSecret;
+	private static String jwtSecret = "EmployeeManagementSystemSecretKy";
+	
+	
 
     public Key getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(Base64.getEncoder().encodeToString(jwtSecret.getBytes()));

@@ -27,7 +27,7 @@ public class JWTUtils {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(JWTUtils.class);
 
 	@Value("${ems.app.jwtExpirationMs}")
-	private String jwtExpirationMs;
+	private long jwtExpirationMs;
 
 	@Value("${ems.app.jwtCookieName}")
 	private String jwtCookie;

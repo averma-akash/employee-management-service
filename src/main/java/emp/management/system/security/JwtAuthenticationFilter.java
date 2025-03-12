@@ -1,18 +1,19 @@
 package emp.management.system.security;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import emp.management.system.auth.service.UserService;
-import emp.management.system.entity.User;
 import emp.management.system.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,13 +24,9 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JWTUtils jwtUtils;
-	private final UserRepository userDao;
-	private final UserService userService;
 
 	public JwtAuthenticationFilter(JWTUtils jwtUtils, UserRepository userDao, UserService userService) {
 		this.jwtUtils = jwtUtils;
-		this.userDao = userDao;
-		this.userService = userService;
 	}
 
 	@Override
@@ -40,9 +37,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			if (null != jwt) {
 				String username = jwtUtils.extractUsername(jwt);
 				if (null != username && jwtUtils.validateJwtToken(jwt, username)) {
-					Map<String, Object> claims = createClaims(username);
-					UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(claims,
-							null, null);
+					Map<String, Object> claims = jwtUtils.getClaims(jwt);
+					UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username,
+							null, getAuthorities(claims));
 					authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 					SecurityContextHolder.getContext().setAuthentication(authentication);
 				}
@@ -53,16 +50,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		filterChain.doFilter(request, response);
 	}
+	
+	private List<GrantedAuthority> getAuthorities(Map<String, Object> claims) {
+	    List<GrantedAuthority> authorities = new ArrayList<>();
+	    if (claims.get("role") instanceof List<?>) {
+	        List<?> roles = (List<?>) claims.get("roles");
+	        for (Object role : roles) {
+	            authorities.add(new SimpleGrantedAuthority(role.toString()));
+	        }
+	    } else {
+	    	String role = claims.get("role").toString();
+	    	 authorities.add(new SimpleGrantedAuthority(role));
+	    }
+	    return authorities;
+	}
 
 	private String parseJwt(HttpServletRequest request) {
 		String jwt = jwtUtils.getJwtFromCookies(request);
 		return jwt;
 	}
 
-	public Map<String, Object> createClaims(String username) {
-
-		User user = userDao.findByUsername(username);
-		return userService.createClaims(user);
-	}
+//	public Map<String, Object> createClaims(String username) {
+//
+//		User user = userDao.findByUsername(username);
+//		return userService.createClaims(user);
+//	}
 
 }
