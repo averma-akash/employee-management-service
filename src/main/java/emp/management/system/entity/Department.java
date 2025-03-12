@@ -9,37 +9,30 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Getter
-@Setter
-@AllArgsConstructor
+@Entity(name = "DEPARTMENTS")
 @NoArgsConstructor
-@Table(name = "USERS")
-public class User implements Serializable {
+@AllArgsConstructor
+@Setter
+@Getter
+public class Department implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@SequenceGenerator(name="USERS_SEQ", allocationSize=1)
+	@SequenceGenerator(name="DEPARTMENTS_SEQ", allocationSize=1)
 	@Column(name = "ID")
 	private Integer id;
-	@Column(name="EMPLOYEE_ID")
-	private Integer empId;
-	@Column(name="USERNAME")
-	private String username;
-	@Column(name="PASSWORD")
-	private String password;
-	@Column(name="ROLE_ID")
-	private Integer roleId;
-	@Column(name="CREATED_AT")
+
+	@Column(name = "NAME")
+	private String deptName;
+
+	@Column(name = "CREATED_AT")
 	private Date createdAt;
-	
 
 }
