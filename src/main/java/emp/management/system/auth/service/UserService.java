@@ -7,12 +7,12 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import emp.management.system.auth.pojo.LoginRequest;
 import emp.management.system.auth.pojo.RegistrationRequest;
 import emp.management.system.entity.AuditLogs;
-import emp.management.system.entity.Employee;
 import emp.management.system.entity.Roles;
 import emp.management.system.entity.User;
 import emp.management.system.repository.AuditRepository;
@@ -61,26 +61,29 @@ public class UserService {
 	@Transactional
 	public String userRegister(@Valid RegistrationRequest request) {
 
-		Employee emp = CommonUtility.setEmployee(request);
-		Employee response = empDao.save(emp);
-
 		User user = new User();
-		String username = CommonUtility.generateUsername(response.getEmail());
+		String username = CommonUtility.generateUsername(request.getEmail());
 		user.setCreatedAt(new Date());
-		user.setEmpId(response.getId());
+		user.setEmpId(request.getEmpId());
 		user.setPassword(CommonUtility.randomPassowrd());
-		user.setRoleId(response.getRoleId());
+		user.setRoleId(request.getRoleId());
 		user.setUsername(username);
 
 		userDao.save(user);
 
 		AuditLogs audit = new AuditLogs();
-		audit.setAction("Added New User " + username);
+		audit.setAction("Registered New User " + username);
 		audit.setCreatedTime(new Date());
-		audit.setEmployeeId(response.getId());
+		audit.setEmployeeId(getEMpId());
 
 		auditRepo.save(audit);
 		return "Success";
+	}
+
+	public Integer getEMpId() {
+		String username = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+		User findByUsername = userDao.findByUsername(username);
+		return findByUsername.getEmpId();
 	}
 
 }
