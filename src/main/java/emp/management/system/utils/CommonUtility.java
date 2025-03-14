@@ -6,16 +6,21 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import emp.management.system.auth.pojo.RegistrationRequest;
+import emp.management.system.emp.pojo.AddEmployee;
 import emp.management.system.entity.Employee;
+import emp.management.system.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 
 public class CommonUtility {
+	
+	@Autowired
+	UserRepository userDao;
 
 	public static List<String> getAssignedRoles() {
 
@@ -33,8 +38,8 @@ public class CommonUtility {
 		}
 		return roles;
 	}
-
-	public static Employee setEmployee(@Valid RegistrationRequest request) {
+	
+	public static Employee setEmployee(@Valid AddEmployee request) {
 		
 		Employee emp = new Employee();
 		emp.setCreatedDate(new Date());

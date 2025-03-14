@@ -54,13 +54,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private List<GrantedAuthority> getAuthorities(Map<String, Object> claims) {
 	    List<GrantedAuthority> authorities = new ArrayList<>();
 	    if (claims.get("role") instanceof List<?>) {
-	        List<?> roles = (List<?>) claims.get("roles");
+	        List<?> roles = (List<?>) claims.get("role");
 	        for (Object role : roles) {
-	            authorities.add(new SimpleGrantedAuthority(role.toString()));
+	            authorities.add(new SimpleGrantedAuthority("ROLE_"+role.toString()));
 	        }
 	    } else {
 	    	String role = claims.get("role").toString();
-	    	 authorities.add(new SimpleGrantedAuthority(role));
+	    	 authorities.add(new SimpleGrantedAuthority("ROLE_"+role));
 	    }
 	    return authorities;
 	}
