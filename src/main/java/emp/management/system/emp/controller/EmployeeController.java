@@ -12,13 +12,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import emp.management.system.emp.pojo.AddEmployee;
+import emp.management.system.emp.pojo.SearchEmployee;
+import emp.management.system.emp.pojo.UpdateEmployee;
 import emp.management.system.emp.service.EmployeeService;
 import emp.management.system.entity.Employee;
 import emp.management.system.response.pojo.ErrorResponse;
@@ -72,5 +77,34 @@ public class EmployeeController {
 		Page<Employee> employees = service.getAllEmployees(pageable);
 		return ResponseEntity.ok(employees);
 	}
+
+	@GetMapping(value = "employees/{id}")
+	@Operation(summary = "Get Employee By Id", description = "Everyone can access it.")
+	public ResponseEntity<Employee>getEmpById(@PathVariable Integer id) {
+		return ResponseEntity.ok().body(service.getEmployee(id));
+	}
+
+	@PutMapping(value = "employees/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
+	@Operation(summary = "Update Employee Data", description = "Update based on Emp Id")
+	public ResponseEntity<?> updateEmp(@PathVariable Integer id, @RequestBody UpdateEmployee emp) {
+		return ResponseEntity.ok().body(service.updateEmp(id, emp));
+		
+	}
+	
+	@DeleteMapping(value = "employees/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "Delete Employee By ID", description = "Delete Employee details in User and employee from table")
+	public ResponseEntity<?> deleteEmp(@PathVariable Integer id) {
+		return ResponseEntity.ok().body(service.deleteEmp(id));
+		
+	}
+	
+	@PostMapping(value = "employees/search")
+	@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+	public ResponseEntity<List<Employee>> searchEmployee(@RequestBody SearchEmployee searchEmp) {
+		return ResponseEntity.ok().body(service.searchEmployee(searchEmp));
+	}
+	
 
 }
