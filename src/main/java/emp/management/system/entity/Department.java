@@ -25,7 +25,7 @@ public class Department implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@SequenceGenerator(name="DEPARTMENTS_SEQ", allocationSize=1)
+	@SequenceGenerator(name="DEPARTMENTS_SEQ",initialValue = 100, allocationSize=1)
 	@Column(name = "ID")
 	private Integer id;
 
